@@ -12,6 +12,7 @@ import {
   removeUpvote,
   deleteFeedback,
   getFeedbackStatistics,
+  getEligibleMeals,
 } from '../controllers/feedbackController.js';
 import { protect } from '../middleware/authMiddleware.js';
 import { authorize } from '../middleware/roleMiddleware.js';
@@ -27,9 +28,11 @@ import {
 const router = express.Router();
 
 // ── Student routes ───────────────────────────────────────────────
+router.get('/eligible-meals', protect, authorize('student'), getEligibleMeals);
 router.post('/', protect, authorize('student'), submitFeedbackValidation, validate, submitFeedback);
 router.get('/my-feedback', protect, authorize('student'), getMyFeedback);
 router.put('/:id', protect, authorize('student'), updateFeedbackValidation, validate, updateFeedback);
+
 
 // ── Manager and Admin routes ─────────────────────────────────────
 router.get('/consolidated', protect, authorize('manager', 'admin'), getConsolidatedFeedback);

@@ -32,7 +32,7 @@ export const getAllBillsStats = async (month, year) => {
 
   if (month && year) {
     match.month = parseInt(month);
-    match.year = parseInt(year);
+    match.year  = parseInt(year);
   }
 
   const result = await Bill.aggregate([
@@ -40,19 +40,28 @@ export const getAllBillsStats = async (month, year) => {
     {
       $group: {
         _id: null,
-        totalBills: { $sum: 1 },
-        paidBills: { $sum: { $cond: [{ $eq: ['$paymentStatus', 'paid'] }, 1, 0] } },
-        unpaidBills: { $sum: { $cond: [{ $eq: ['$paymentStatus', 'unpaid'] }, 1, 0] } },
-        partiallyPaidBills: { $sum: { $cond: [{ $eq: ['$paymentStatus', 'partially_paid'] }, 1, 0] } },
-        overdueBills: { $sum: { $cond: [{ $eq: ['$paymentStatus', 'overdue'] }, 1, 0] } },
+        totalBills:         { $sum: 1 },
+        paidBills:          { $sum: { $cond: [{ $eq: ['$paymentStatus', 'paid'] },             1, 0] } },
+        unpaidBills:        { $sum: { $cond: [{ $eq: ['$paymentStatus', 'unpaid'] },           1, 0] } },
+        partiallyPaidBills: { $sum: { $cond: [{ $eq: ['$paymentStatus', 'partially_paid'] },   1, 0] } },
+        overdueBills:       { $sum: { $cond: [{ $eq: ['$paymentStatus', 'overdue'] },          1, 0] } },
+        waivedBills:        { $sum: { $cond: [{ $eq: ['$paymentStatus', 'waived'] },           1, 0] } },
+        totalAmount:        { $sum: '$totalAmount' },
+        totalCollected:     { $sum: '$amountPaid' },
+        totalDue:           { $sum: '$amountDue' },
       },
     },
   ]);
 
   return result.length > 0
     ? result[0]
-    : { totalBills: 0, paidBills: 0, unpaidBills: 0, partiallyPaidBills: 0, overdueBills: 0 };
+    : {
+        totalBills: 0, paidBills: 0, unpaidBills: 0,
+        partiallyPaidBills: 0, overdueBills: 0, waivedBills: 0,
+        totalAmount: 0, totalCollected: 0, totalDue: 0,
+      };
 };
+
 
 /**
  * Get total active students count.
@@ -286,20 +295,38 @@ export const addPayment = async (user, billId, { amount, paymentMethod, transact
 
 /**
  * Apply discount to a bill.
+ * Accepts: { discount, discountReason } OR { discountAmount, reason }
  */
-export const applyDiscount = async (billId, { discountAmount, reason }) => {
+export const applyDiscount = async (billId, body) => {
   const bill = await Bill.findById(billId);
 
   if (!bill) {
     throw new AppError('Bill not found', 404);
   }
 
-  bill.applyDiscount(discountAmount, reason);
-  await bill.save();
-  await ensureRoundedTotal(bill);
+  // Accept either naming convention from the request body
+  const discountAmount = Number(body.discount ?? body.discountAmount ?? 0);
+  const reason = (body.discountReason ?? body.reason ?? '').trim();
 
-  return bill;
+  if (discountAmount <= 0) {
+    throw new AppError('Discount amount must be greater than 0', 400);
+  }
+
+  // Use totalAmount as ceiling (what the admin sees on screen)
+  // Add small epsilon to avoid floating-point rejection on full waiver
+  const grossTotal = bill.baseAmount + bill.fixedCharges + bill.lateFee + bill.adjustments;
+  if (discountAmount > grossTotal + 0.01) {
+    throw new AppError(`Discount (₹${discountAmount}) cannot exceed bill total (₹${grossTotal.toFixed(2)})`, 400);
+  }
+
+  bill.discount = discountAmount;
+  bill.discountReason = reason;
+  await bill.save(); // pre-save recalculates totalAmount and sets paymentStatus
+
+  return await Bill.findById(bill._id)
+    .populate('studentId', 'name registrationNumber email hostelId');
 };
+
 
 /**
  * Apply late fee to a bill.

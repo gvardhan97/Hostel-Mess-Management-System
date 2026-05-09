@@ -2,7 +2,16 @@ import asyncHandler from '../utils/asyncHandler.js';
 import { sendSuccess, sendCreated, sendPaginated } from '../utils/apiResponse.js';
 import * as feedbackService from '../services/feedbackService.js';
 
+// @desc    Get meals eligible for feedback (attended + window open)
+// @route   GET /api/feedback/eligible-meals
+// @access  Private (Student)
+export const getEligibleMeals = asyncHandler(async (req, res) => {
+  const meals = await feedbackService.getEligibleMealsForFeedback(req.user);
+  sendSuccess(res, meals);
+});
+
 /**
+
  * Feedback Controller
  *
  * Handles HTTP request/response only.

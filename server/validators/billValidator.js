@@ -66,18 +66,19 @@ export const addPaymentValidation = [
 ];
 
 // ── Apply discount validation ────────────────────────────────────
+// Accepts: discount (number) + discountReason (optional string)
 export const applyDiscountValidation = [
-  body('discountAmount')
+  body('discount')
     .isNumeric()
     .withMessage('Discount amount must be a number')
-    .custom((value) => value > 0)
+    .custom((value) => Number(value) > 0)
     .withMessage('Discount amount must be greater than 0'),
 
-  body('reason')
+  body('discountReason')
     .optional()
     .trim()
     .notEmpty()
-    .withMessage('Reason cannot be empty'),
+    .withMessage('Discount reason cannot be empty if provided'),
 ];
 
 // ── Apply late fee validation ────────────────────────────────────

@@ -13,10 +13,7 @@
  */
 
 import mongoose from 'mongoose';
-import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname, join } from 'path';
 
 dotenv.config();
 
@@ -31,7 +28,7 @@ const MEAL_RATES = { breakfast: 30, lunch: 50, dinner: 50 };
 const FIXED_CHARGES = 0;
 
 // ── Helpers ─────────────────────────────────────────────────────
-const hashPwd = async (pwd) => bcrypt.hash(pwd, 10);
+// NOTE: do NOT pre-hash — User model pre-save hook handles bcrypt.
 
 function daysAgo(n) {
   const d = new Date();
@@ -68,7 +65,7 @@ async function seed() {
   const admin = await User.create({
     name: 'Dr. Suresh Kumar',
     email: 'admin@demo.iiita.ac.in',
-    password: await hashPwd('Admin@1234'),
+    password: 'Admin@1234',
     role: 'admin',
     contactNumber: '9876500001',
   });
@@ -86,7 +83,7 @@ async function seed() {
       User.create({
         name: m.name,
         email: m.email,
-        password: hashPwd('Manager@1234'),
+        password: 'Manager@1234',
         role: 'manager',
         hostelId: m.hostelId,
         contactNumber: m.contact,
@@ -117,7 +114,7 @@ async function seed() {
       User.create({
         name: s.name,
         email: s.email,
-        password: hashPwd('Student@1234'),
+        password: 'Student@1234',
         role: 'student',
         hostelId: s.hostel,
         registrationNumber: s.regNo,

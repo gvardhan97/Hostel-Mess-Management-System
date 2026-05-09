@@ -243,13 +243,10 @@ BillSchema.pre('save', function (next) {
     );
   }
 
-  // Calculate total amount
-  this.totalAmount =
-    this.baseAmount +
-    this.fixedCharges +
-    this.lateFee +
-    this.adjustments -
-    this.discount;
+  // Calculate total amount (round to avoid floating-point issues)
+  this.totalAmount = Math.round(
+    (this.baseAmount + this.fixedCharges + this.lateFee + this.adjustments - this.discount) * 100
+  ) / 100;
 
   // Ensure totalAmount is not negative
   if (this.totalAmount < 0) {
@@ -257,25 +254,20 @@ BillSchema.pre('save', function (next) {
   }
 
   // Calculate amount due
-  this.amountDue = this.totalAmount - this.amountPaid;
-
-  // Ensure amountDue is not negative
-  if (this.amountDue < 0) {
-    this.amountDue = 0;
-  }
+  this.amountDue = Math.max(0, this.totalAmount - this.amountPaid);
 
   // Update payment status
-  if (this.amountDue <= 0 && this.totalAmount > 0) {
+  // IMPORTANT: check 'waived' FIRST — fully discounted bills must be waived
+  // regardless of due date. Use <= 0 (not === 0) to handle floating-point.
+  if (this.totalAmount <= 0) {
+    this.paymentStatus = 'waived';
+  } else if (this.amountDue <= 0) {
     this.paymentStatus = 'paid';
-    if (!this.paidDate && this.amountPaid > 0) {
-      this.paidDate = new Date();
-    }
+    if (!this.paidDate) this.paidDate = new Date();
   } else if (this.amountPaid > 0 && this.amountDue > 0) {
     this.paymentStatus = 'partially_paid';
   } else if (new Date() > this.dueDate && this.amountDue > 0) {
     this.paymentStatus = 'overdue';
-  } else if (this.totalAmount === 0) {
-    this.paymentStatus = 'waived';
   } else {
     this.paymentStatus = 'unpaid';
   }
