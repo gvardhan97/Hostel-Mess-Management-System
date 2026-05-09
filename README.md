@@ -22,6 +22,53 @@ A full-stack web application for managing the hostel mess at **IIIT Allahabad**.
 
 ---
 
+---
+
+## 📝 Changelog
+
+### v2.0 — May 2026 (Current)
+
+#### ✅ Feedback — Attendance-Gated Submission
+- Students can **only submit feedback for meals they physically scanned into** via QR
+- New endpoint `GET /api/feedback/eligible-meals` returns meals where feedback window is open
+- **Feedback window**: same day of meal OR by **end-of-day the following day** (e.g., ate Lunch on 5th → can rate until 6th 11:59 PM)
+- One feedback per student per meal per date enforced
+
+#### ✅ Discount & Waiver UI (Admin)
+- **Payment Records** page now has a `💸 Discount / Waive` button on every unpaid/overdue bill
+- **Full waiver**: one-click "⚡ Waive Full Bill" sets status to `waived` automatically
+- **Partial discount**: enter custom amount + choose reason (scholarship, medical leave, billing error, mess closure)
+- Discount + reason stored on bill; displayed on the card after applying
+
+#### ✅ Bill Model — Waived Status Fixed
+- Pre-save hook now checks `totalAmount <= 0` **before** paid/overdue checks (was incorrectly ordered)
+- Uses `Math.round(...*100)/100` to eliminate floating-point residuals that prevented exact `=== 0` matches
+- `billValidator.js` updated to accept `discount` + `discountReason` fields (was `discountAmount` + `reason`)
+
+#### ✅ System Reports — Admin Fixed
+- `getFeedbackStatistics` now works system-wide for admin (no `hostelId` required)
+- `getAllBillsStats` now returns `totalAmount`, `totalCollected`, `totalDue` for revenue display
+- SystemReports page rebuilt: added revenue KPI row, category breakdown chart, rating distribution pie, and billing status explanation table
+- All empty states handled gracefully
+
+#### ✅ Demo Seed — Fixed Double-Hashing
+- `seedDemo.js` now passes plain-text passwords; User model pre-save hook hashes once
+- Seeds: 1 admin · 3 managers · 10 students · 600 attendance · 30 bills · 117 feedbacks
+
+---
+
+## 💳 Bill Status Glossary
+
+| Status | Meaning | When set |
+|--------|---------|----------|
+| **Unpaid** | No payment made yet | Default after bill generation |
+| **Partially Paid** | Some amount paid; balance still due | When `amountPaid > 0` and `amountDue > 0` |
+| **Paid** | Full amount settled | When `amountDue <= 0` |
+| **Overdue** | Past due date with balance outstanding | When `now > dueDate` and `amountDue > 0` |
+| **Waived** | Admin-approved exemption | When admin applies discount = full bill amount (scholarship, medical leave, billing error, mess closure) |
+
+---
+
 ## Overview
 
 The IIITA Mess Management System replaces manual paper-based processes with a unified digital platform. Students scan QR codes to mark attendance at each meal, managers generate daily QR tokens and manage menus, and admins generate bills based on actual meal consumption and collect payments via Razorpay.
@@ -48,7 +95,7 @@ The IIITA Mess Management System replaces manual paper-based processes with a un
 - **Leave Management** — Mark planned absences (vacation, sick leave, home visit, etc.)
 - **Bill Viewer** — View monthly bills with expandable meal-wise breakdown (e.g., Breakfast: 22 × ₹30 = ₹660)
 - **Pay Bills** — Select pending bills and pay securely via Razorpay (UPI / Card / Netbanking)
-- **Feedback** — Rate meals with star ratings, tags (quality, portion, cleanliness, etc.), and comments
+- **Feedback** — Rate meals (1–5 ★) with category ratings, tags, and comments. **Gated by QR attendance** — you can only submit feedback for a meal you actually scanned into. Submission window closes at end-of-day the day after the meal (e.g., ate on 5th → can rate until 6th 11:59 PM)
 - **Profile Page** — Account info, bill summary stats, this month's meal counts, recent bill history
 - **Flexible Login** — Sign in using email address **or** roll number (case-insensitive: `IEC2022047`, `iec2022047`, `iEc2022047`)
 
@@ -64,8 +111,8 @@ The IIITA Mess Management System replaces manual paper-based processes with a un
 ### 🔑 Admin Features
 - **Dashboard** — System-wide stats: total students, total bills, paid vs unpaid counts
 - **Meal-wise Bill Generation** — Set individual rates for breakfast, lunch, dinner per hostel/month; bills are auto-calculated from actual QR attendance data
-- **Payment Records** — View and filter all student bills by hostel (dropdown), status, or student name/roll number
-- **System Reports** — Charts showing billing and payment analytics; export to PDF
+- **Payment Records** — View and filter all student bills by hostel, status, or name/roll number. **Apply Discount or Full Waiver** per student via the 💸 button — choose a reason (scholarship, medical leave, billing error, mess closure) and apply
+- **System Reports** — Live charts: payment status pie, meal rating bars, category breakdown, rating distribution, revenue row (Billed / Collected / Outstanding). Export to PDF
 - **User Role Management** — View all users and change their roles (student / manager / admin)
 - **Profile Page** — System-wide user count, current month billing summary, revenue collected
 
@@ -322,10 +369,12 @@ Hostel-Mess-Management-System/
 | hostelId | String | |
 | month / year | Number | Billing period |
 | mealWiseCharges | Array | `[{ mealType, daysConsumed, rate, totalAmount }]` |
-| totalAmount | Number | Auto-calculated |
+| discount | Number | Applied by admin; reduces totalAmount |
+| discountReason | String | Reason for waiver (e.g. scholarship, billing error) |
+| totalAmount | Number | Auto-calculated: baseAmount + fixedCharges + lateFee + adjustments − discount |
 | amountPaid | Number | |
 | amountDue | Number | Auto-calculated |
-| paymentStatus | Enum | `unpaid` / `partially_paid` / `paid` / `overdue` / `waived` |
+| paymentStatus | Enum | `unpaid` · `partially_paid` · `paid` · `overdue` · `waived` |
 | paymentHistory | Array | `[{ amount, method, transactionId, remarks }]` |
 
 ### MealToken (QR)
@@ -364,11 +413,13 @@ Hostel-Mess-Management-System/
 | GET | `/api/bills/my-bills` | Student | Get own bills |
 | POST | `/api/bills/generate-all` | Admin | Generate bills for all hostel students |
 | GET | `/api/bills/mess/:hostelId` | Manager/Admin | Get all bills for a hostel |
-| PUT | `/api/bills/mark-paid` | Student | Mark bills paid (legacy) |
-| GET | `/api/bills/stats-all` | Admin | System-wide bill stats |
+| PUT | `/api/bills/mark-paid` | Student | Mark bills paid after Razorpay |
+| GET | `/api/bills/stats-all/:month/:year` | Admin | System-wide bill stats with revenue totals |
 | GET | `/api/bills/students-count` | Admin | Total active students |
-| PUT | `/api/bills/:id/discount` | Admin | Apply discount |
+| PUT | `/api/bills/:id/discount` | Admin | Apply discount/waiver `{ discount, discountReason }` |
+| PUT | `/api/bills/:id/late-fee` | Admin | Apply late fee |
 | PUT | `/api/bills/:id/cancel` | Admin | Cancel a bill |
+| GET | `/api/bills/summary/:hostelId/:month/:year` | Manager/Admin | Hostel billing summary |
 
 ### Payments (Razorpay)
 | Method | Endpoint | Access | Description |
@@ -404,10 +455,14 @@ Hostel-Mess-Management-System/
 ### Feedback
 | Method | Endpoint | Access | Description |
 |--------|----------|--------|-------------|
-| POST | `/api/feedback` | Student | Submit feedback |
+| GET | `/api/feedback/eligible-meals` | Student | Meals attended + window still open for feedback |
+| POST | `/api/feedback` | Student | Submit feedback (requires QR attendance for that meal) |
 | GET | `/api/feedback/my-feedback` | Student | Own feedback history |
-| GET | `/api/feedback/analytics` | Manager | Ratings & tag analytics |
-| GET | `/api/feedback/reports` | Manager | All feedback (filterable) |
+| GET | `/api/feedback/mess` | Manager/Admin | All feedback for a hostel (filterable) |
+| GET | `/api/feedback/pending` | Manager/Admin | Pending feedbacks |
+| GET | `/api/feedback/statistics` | Manager/Admin | Avg ratings, meal-wise breakdown, distribution |
+| PUT | `/api/feedback/:id/respond` | Manager/Admin | Add manager response |
+| PUT | `/api/feedback/:id/status` | Manager/Admin | Update feedback status |
 
 ### Users
 | Method | Endpoint | Access | Description |
@@ -470,23 +525,32 @@ npm run dev
 
 The frontend starts on **http://localhost:5173**
 
-### 4. Seed the Database (Optional)
+### 4. Seed Demo Data
 
-To populate the database with sample users, hostels, and bills:
+Run the demo seed script to populate realistic data (1 admin, 3 managers, 10 students, 600 attendance records, 30 bills, 117 feedback entries):
 
 ```bash
 cd server
-node seed.js
+node seedDemo.js
 ```
 
-This creates sample accounts:
+#### Demo Credentials
 
-| Role | Email | Password |
-|------|-------|----------|
-| Student | student1@mess.com | Student@1234 |
-| Student | student2@mess.com | Student@1234 |
-| Manager | manager@mess.com | Manager@1234 |
-| Admin | admin@mess.com | Admin@1234 |
+| Role | Email | Password | Hostel |
+|------|-------|----------|--------|
+| **Admin** | `admin@demo.iiita.ac.in` | `Admin@1234` | — |
+| **Manager** | `manager.bh1@demo.iiita.ac.in` | `Manager@1234` | BH-1 |
+| **Manager** | `manager.bh2@demo.iiita.ac.in` | `Manager@1234` | BH-2 |
+| **Manager** | `manager.gh1@demo.iiita.ac.in` | `Manager@1234` | GH-1 |
+| **Student** | `rahul@demo.iiita.ac.in` | `Student@1234` | BH-1 |
+| **Student** | `aditya@demo.iiita.ac.in` | `Student@1234` | BH-1 |
+| **Student** | `karan@demo.iiita.ac.in` | `Student@1234` | BH-1 |
+| **Student** | `sneha@demo.iiita.ac.in` | `Student@1234` | BH-2 |
+| **Student** | `neha@demo.iiita.ac.in` | `Student@1234` | GH-1 |
+
+Students can also login with their **roll number** (e.g. `IEC2022001`, case-insensitive).
+
+> ⚠️ Re-running `node seedDemo.js` clears old demo data first — safe to run multiple times.
 
 ---
 
