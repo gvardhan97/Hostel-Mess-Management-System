@@ -123,7 +123,7 @@ function DiscountModal({ bill, onClose, onSuccess }) {
             min="0"
             max={bill.totalAmount}
             value={amount}
-            onChange={(e) => setAmount(e.target.value)}
+            onChange={(e) => updateAmount(e.target.value)}
             placeholder={`Max ${fmt(bill.totalAmount)}`}
             className="w-full border rounded-xl pl-8 pr-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
           />
@@ -136,7 +136,7 @@ function DiscountModal({ bill, onClose, onSuccess }) {
             <button
               key={r}
               type="button"
-              onClick={() => setReason(r)}
+              onClick={() => updateReason(r)}
               className={`px-3 py-1 text-xs rounded-full border transition ${
                 reason === r
                   ? "bg-blue-600 text-white border-blue-600"
@@ -150,7 +150,7 @@ function DiscountModal({ bill, onClose, onSuccess }) {
         <input
           type="text"
           value={reason}
-          onChange={(e) => setReason(e.target.value)}
+          onChange={(e) => updateReason(e.target.value)}
           placeholder="Or type a custom reason..."
           className="w-full border rounded-xl px-3 py-2.5 text-sm mb-4 focus:ring-2 focus:ring-blue-500 focus:outline-none"
         />
