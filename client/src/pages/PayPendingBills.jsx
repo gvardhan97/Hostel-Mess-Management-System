@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import { getMyBills } from "../api/billAPI.js";
 import { useNavigate } from "react-router-dom";
 
 export default function PayPendingBills() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [pendingBills, setPendingBills] = useState([]);
   const [selected, setSelected] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -47,21 +47,10 @@ export default function PayPendingBills() {
     .filter((b) => selected.includes(b._id))
     .reduce((sum, b) => sum + (Math.round(b.totalAmount) || 0), 0);
 
-  if (loading)
-    return <p className="text-center py-10">Loading pending bills...</p>;
+  if (loading) return <LoadingScreen message="Loading pending bills..." />;
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Pay Pending Bills</h1>
-          <p className="text-neutral-600 mt-1">
-            Select the pending bills you want to pay and proceed.
-          </p>
-        </header>
+    <PageLayout title="Pay Pending Bills" subtitle="Select the pending bills you want to pay and proceed.">
 
         {pendingBills.length === 0 ? (
           <p className="text-center text-green-600 font-medium">
@@ -121,7 +110,6 @@ export default function PayPendingBills() {
             </div>
           </>
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }

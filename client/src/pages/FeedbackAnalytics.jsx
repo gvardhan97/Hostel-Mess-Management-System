@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar2.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import StatBadge from "../components/StatBadge.jsx";
 import { Star, Users, TrendingUp, X } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
@@ -8,7 +8,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function FeedbackAnalytics() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState({
     mealWiseRatings: [],
@@ -126,22 +126,13 @@ export default function FeedbackAnalytics() {
     </div>
   );
 
-  if (loading) {
-    return <div className="h-screen flex items-center justify-center">Loading analytics...</div>;
-  }
+  if (loading) return <LoadingScreen message="Loading analytics..." />;
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Feedback Analytics</h1>
-          <p className="text-neutral-600 mt-1">
-            View consolidated feedback trends and meal-wise ratings.
-          </p>
-        </header>
+    <PageLayout
+      title="Feedback Analytics"
+      subtitle="View consolidated feedback trends and meal-wise ratings."
+    >
 
         {/* Top Stats */}
         <section className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
@@ -217,8 +208,7 @@ export default function FeedbackAnalytics() {
             }} 
           />
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

@@ -75,16 +75,27 @@ export const registerUser = async (userData) => {
 };
 
 /**
- * Authenticate a user with email and password.
+ * Authenticate a user with email OR roll number (case-insensitive) + password.
  *
- * @param {string} email
+ * @param {string} identifier - Email address or roll number (e.g. IEC2022047)
  * @param {string} password
  * @returns {{ user: Object, token: string }}
  * @throws {AppError} 401 if credentials invalid or account deactivated
  */
-export const loginUser = async (email, password) => {
-  // Find user with password field included (select: false by default)
-  const user = await User.findOne({ email }).select('+password');
+export const loginUser = async (identifier, password) => {
+  const trimmed = identifier.trim();
+  const isEmail = trimmed.includes('@');
+
+  // Find user by email or roll number (case-insensitive)
+  let user;
+  if (isEmail) {
+    user = await User.findOne({ email: trimmed.toLowerCase() }).select('+password');
+  } else {
+    // Case-insensitive regex match for registration number
+    user = await User.findOne({
+      registrationNumber: { $regex: new RegExp(`^${trimmed}$`, 'i') },
+    }).select('+password');
+  }
 
   if (!user) {
     throw new AppError('Invalid credentials', 401);

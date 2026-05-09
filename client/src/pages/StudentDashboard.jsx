@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import Card from "../components/Card.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import OutlineButton from "../components/OutlineButton.jsx";
@@ -13,7 +12,7 @@ import { API_BASE_URL } from "../config/api.js";
 
 
 export default function StudentDashboard(){
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const navigate = useNavigate();
 
   // ✅ Live stats
@@ -94,11 +93,7 @@ export default function StudentDashboard(){
   }, []);
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
+    <PageLayout>
         {/* Greeting */}
         <section className="mb-8">
           <div className="flex items-end justify-between gap-4">
@@ -161,7 +156,6 @@ export default function StudentDashboard(){
         <footer className="mt-12 text-center text-sm text-neutral-500">
           © {new Date().getFullYear()} IIITA Mess. All rights reserved.
         </footer>
-      </main>
-    </div>
+    </PageLayout>
   );
 }

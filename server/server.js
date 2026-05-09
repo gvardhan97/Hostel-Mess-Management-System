@@ -8,9 +8,6 @@ dotenv.config();
 // ── Connect to MongoDB ──────────────────────────────────────────
 connectDB();
 
-// ── Cron jobs ────────────────────────────────────────────────────
-import './cron/autoMarkPresent.js';
-
 // ── Start server ─────────────────────────────────────────────────
 const PORT = process.env.PORT || 5000;
 

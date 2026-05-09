@@ -25,6 +25,7 @@ import SystemReports from "./pages/SystemReports.jsx";
 import UserRoles from "./pages/UserRoles.jsx";
 import GenerateQR from "./pages/GenerateQR.jsx";
 import ScanMeal from "./pages/ScanMeal.jsx";
+import ProfilePage from "./pages/profile/ProfilePage.jsx";
 
 export default function App() {
   return (
@@ -63,6 +64,7 @@ export default function App() {
       {/* ── Shared routes (any authenticated user) ────────────── */}
       <Route path="/menu" element={<ProtectedRoute><Menu /></ProtectedRoute>} />
       <Route path="/help" element={<ProtectedRoute><Help /></ProtectedRoute>} />
+      <Route path="/me"   element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
 
       {/* ── 404 ───────────────────────────────────────────────── */}
       <Route path="*" element={<h1 className="p-8 text-2xl">404 • Page not found</h1>} />

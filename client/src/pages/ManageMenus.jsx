@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar2.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function ManageMenus() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [weeklyMenu, setWeeklyMenu] = useState({});
   const [menus, setMenus] = useState([]);
@@ -120,7 +119,6 @@ export default function ManageMenus() {
           breakfast: { items: [{ name: meals.breakfast || "N/A" }] },
           lunch: { items: [{ name: meals.lunch || "N/A" }] },
           dinner: { items: [{ name: meals.dinner || "N/A" }] },
-          eveningSnacks: { items: [] },
         },
       }));
 
@@ -189,11 +187,8 @@ export default function ManageMenus() {
     );
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <PageLayout title="Weekly Menu Management">
 
-      <main className="container-narrow py-10">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">
             Weekly Menu Management
@@ -317,8 +312,7 @@ export default function ManageMenus() {
             </div>
           )}
         </section>
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import {
   getMyAttendance,
@@ -13,7 +13,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import { useNavigate } from "react-router-dom";
 
 export default function Attendance() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [attendanceHistory, setAttendanceHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
@@ -116,21 +116,13 @@ export default function Attendance() {
   };
   const isMealScanned = (type) => todayMeals.some((m) => m.mealType === type && m.isPresent);
 
-  if (loading) return <p className="text-center py-10">Loading attendance...</p>;
+  if (loading) return <LoadingScreen message="Loading attendance..." />;
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Attendance</h1>
-          <p className="text-neutral-600 mt-1">
-            Scan the mess QR code to mark your attendance, or apply for leave.
-          </p>
-        </header>
+    <PageLayout
+      title="Attendance"
+      subtitle="Scan the mess QR code to mark your attendance, or apply for leave."
+    >
 
         {/* Today's Meal Status */}
         <section className="bg-white border border-neutral-200 shadow-sm rounded-xl p-5 mb-6">
@@ -231,7 +223,6 @@ export default function Attendance() {
             ))
           )}
         </section>
-      </main>
 
       {/* Leave Modal */}
       {showModal && (
@@ -310,7 +301,7 @@ export default function Attendance() {
           </div>
         </div>
       )}
-    </div>
+    </PageLayout>
   );
 }
 

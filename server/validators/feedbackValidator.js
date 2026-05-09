@@ -1,4 +1,5 @@
 import { body, query } from 'express-validator';
+import { MEAL_TYPES } from '../constants/index.js';
 
 // ── Submit feedback validation ───────────────────────────────────
 export const submitFeedbackValidation = [
@@ -11,7 +12,7 @@ export const submitFeedbackValidation = [
   body('mealType')
     .notEmpty()
     .withMessage('Meal type is required')
-    .isIn(['breakfast', 'lunch', 'eveningSnacks', 'dinner'])
+    .isIn(MEAL_TYPES)
     .withMessage('Invalid meal type'),
 
   body('overallRating')

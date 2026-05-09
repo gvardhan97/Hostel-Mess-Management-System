@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar3.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function UserRoles() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -66,21 +66,11 @@ export default function UserRoles() {
     }
   };
 
-  if (loading)
-    return <p className="text-center py-10 text-neutral-600">Loading users...</p>;
+  if (loading) return <LoadingScreen message="Loading users..." />;
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+    <PageLayout title="User Roles & Permissions" subtitle="Assign and modify user access roles across the system.">
 
-      <main className="container-narrow py-10">
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">User Roles & Permissions</h1>
-          <p className="text-neutral-600 mt-1">
-            Assign and modify user access roles across the system.
-          </p>
-        </header>
 
         <section className="bg-white border border-neutral-200 shadow-sm rounded-xl p-6">
           <table className="w-full text-left">
@@ -123,7 +113,6 @@ export default function UserRoles() {
             </button>
           </div>
         </section>
-      </main>
-    </div>
+    </PageLayout>
   );
 }

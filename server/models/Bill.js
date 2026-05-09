@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
+import { MEAL_TYPES, PAYMENT_METHODS, BILL_STATUSES } from '../constants/index.js';
 
 // Sub-schema for meal-wise charges
 const MealChargesSchema = new mongoose.Schema(
   {
     mealType: {
       type: String,
-      enum: ['breakfast', 'lunch', 'eveningSnacks', 'dinner'],
+      enum: MEAL_TYPES,
       required: true,
     },
     rate: {
@@ -42,7 +43,7 @@ const PaymentHistorySchema = new mongoose.Schema(
     },
     paymentMethod: {
       type: String,
-      enum: ['cash', 'online', 'upi', 'card', 'bank_transfer', 'other'],
+      enum: PAYMENT_METHODS,
       required: true,
     },
     transactionId: {
@@ -180,7 +181,7 @@ const BillSchema = new mongoose.Schema(
     },
     paymentStatus: {
       type: String,
-      enum: ['unpaid', 'partially_paid', 'paid', 'overdue', 'waived'],
+      enum: BILL_STATUSES,
       default: 'unpaid',
       index: true,
     },
@@ -231,7 +232,6 @@ const BillSchema = new mongoose.Schema(
 BillSchema.index({ studentId: 1, month: 1, year: 1 }, { unique: true });
 BillSchema.index({ hostelId: 1, month: 1, year: 1 });
 BillSchema.index({ paymentStatus: 1, dueDate: 1 });
-BillSchema.index({ billNumber: 1 });
 
 // Pre-save middleware to calculate total amount
 BillSchema.pre('save', function (next) {
@@ -368,10 +368,9 @@ BillSchema.statics.generateFromAttendance = async function (
   );
 
   // Calculate meal-wise consumption
-  const mealTypes = ['breakfast', 'lunch', 'eveningSnacks', 'dinner'];
   const mealWiseCharges = [];
 
-  for (const mealType of mealTypes) {
+  for (const mealType of MEAL_TYPES) {
     const rate = mealRates[mealType] || 0;
     
     // Get actual meal consumption for this meal type

@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import axios from "axios";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function Menu() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [weeklyMenu, setWeeklyMenu] = useState({});
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -74,20 +74,10 @@ export default function Menu() {
   }, [hostelId]);
 
   // ⏳ Loading state
-  if (loading) {
-    return (
-      <div className="h-screen flex items-center justify-center text-xl font-medium">
-        Loading menu...
-      </div>
-    );
-  }
+  if (loading) return <LoadingScreen message="Loading menu..." />;
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
+    <PageLayout title="Weekly Mess Menu">
         {/* Header */}
         <header className="mb-6">
           <h1 className="text-3xl font-bold tracking-tight">
@@ -140,8 +130,7 @@ export default function Menu() {
             ))}
           </section>
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

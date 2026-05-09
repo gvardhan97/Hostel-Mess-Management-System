@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar2.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import { generateToken, getTokensForDate } from "../api/mealTokenAPI.js";
 import QRCode from "qrcode";
@@ -14,7 +13,7 @@ const MEAL_OPTIONS = [
 ];
 
 export default function GenerateQR() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [selectedMeal, setSelectedMeal] = useState("breakfast");
   const [loading, setLoading] = useState(false);
@@ -108,12 +107,7 @@ export default function GenerateQR() {
   );
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        {/* Header */}
+    <PageLayout title="Generate Meal QR" subtitle="Create a unique QR code for a meal. Print or display it in the mess for students to scan.">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Generate Meal QR</h1>
           <p className="text-neutral-600 mt-1">
@@ -290,7 +284,6 @@ export default function GenerateQR() {
             </div>
           </section>
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }

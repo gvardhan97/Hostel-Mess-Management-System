@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
 import OutlineButton from "../components/OutlineButton.jsx";
 import { Star } from "lucide-react";
@@ -8,7 +7,7 @@ import axios from "axios";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function Feedback() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
   const meals = ["Breakfast", "Lunch", "Dinner"];
 
@@ -113,18 +112,10 @@ export default function Feedback() {
   };
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Give Feedback</h1>
-          <p className="text-neutral-600 mt-1">
-            Rate and share your experience for each meal today.
-          </p>
-        </header>
+    <PageLayout
+      title="Give Feedback"
+      subtitle="Rate and share your experience for each meal today."
+    >
 
         <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {meals.map((meal) => (
@@ -167,7 +158,6 @@ export default function Feedback() {
             {submitting ? "Submitting..." : "Submit Feedback"}
           </PrimaryButton>
         </div>
-      </main>
-    </div>
+    </PageLayout>
   );
 }

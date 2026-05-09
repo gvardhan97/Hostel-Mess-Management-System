@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar2.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import StatBadge from "../components/StatBadge.jsx";
 import { Star, Users, TrendingUp, MessageSquare } from "lucide-react";
 import {
@@ -18,7 +18,7 @@ import html2canvas from "html2canvas";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function FeedbackAnalytics() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
   const [analytics, setAnalytics] = useState({ mealWiseRatings: [] });
   const [commentsData, setCommentsData] = useState({});
@@ -69,7 +69,7 @@ export default function FeedbackAnalytics() {
         const start = new Date(year, m - 1, 1).toISOString();
         const end = new Date(year, m, 0).toISOString();
 
-        const mealTypes = ["breakfast", "lunch", "eveningSnacks", "dinner"];
+        const mealTypes = ["breakfast", "lunch", "dinner"];
         const results = {};
 
         await Promise.all(
@@ -141,14 +141,10 @@ export default function FeedbackAnalytics() {
   };
 
   if (loading)
-    return <div className="h-screen flex items-center justify-center">Loading analytics...</div>;
+    return <LoadingScreen message="Loading analytics..." />;
 
   return (
-    <div className="min-h-screen font-sans bg-neutral-50">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main id="feedback-analytics-root" className="container-narrow py-10 px-4">
+    <PageLayout>
         {/* Header */}
         <header className="mb-8 flex flex-col sm:flex-row sm:items-center gap-3">
           <div>
@@ -271,8 +267,7 @@ export default function FeedbackAnalytics() {
             </div>
           )}
         </section>
-      </main>
-    </div>
+    </PageLayout>
   );
 }
 

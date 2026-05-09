@@ -30,7 +30,8 @@ export const getStudentsCount = asyncHandler(async (req, res) => {
 // @route   PUT /api/bills/mark-paid
 // @access  Private
 export const markBillsAsPaid = asyncHandler(async (req, res) => {
-  const count = await billService.markBillsAsPaid(req.user._id, req.body.billIds);
+  const { billIds, transactionId } = req.body;
+  const count = await billService.markBillsAsPaid(req.user._id, billIds, transactionId);
   sendSuccess(res, null, `${count} bills marked as paid successfully`);
 });
 

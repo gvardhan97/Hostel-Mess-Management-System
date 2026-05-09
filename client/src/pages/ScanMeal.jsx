@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import { scanToken } from "../api/mealTokenAPI.js";
 import { getMyAttendance } from "../api/attendanceAPI.js";
 import { useSearchParams } from "react-router-dom";
 import { Html5Qrcode } from "html5-qrcode";
 
 export default function ScanMeal() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [searchParams] = useSearchParams();
   const [scanning, setScanning] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -192,12 +191,7 @@ export default function ScanMeal() {
   };
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        {/* Header */}
+    <PageLayout title="Scan Meal QR" subtitle="Scan the QR code displayed in the mess to mark your attendance.">
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight">Scan Meal QR</h1>
           <p className="text-neutral-600 mt-1">
@@ -359,7 +353,6 @@ export default function ScanMeal() {
             )}
           </section>
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }

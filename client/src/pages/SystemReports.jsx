@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar3.jsx";
+import PageLayout from "../components/PageLayout.jsx";
+import LoadingScreen from "../components/LoadingScreen.jsx";
 import StatBadge from "../components/StatBadge.jsx";
 import {
   ResponsiveContainer,
@@ -21,7 +21,7 @@ import html2canvas from "html2canvas";
 import { API_BASE_URL } from "../config/api.js";
 
 export default function SystemReports() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [loading, setLoading] = useState(true);
 
   const containerRef = useRef(null);
@@ -156,14 +156,11 @@ export default function SystemReports() {
     }
   };
 
-  if (loading) return <div className="h-screen flex items-center justify-center">Loading reports...</div>;
+  if (loading) return <LoadingScreen message="Loading reports..." />;
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main ref={containerRef} className="container-narrow py-10" id="system-reports-root">
+    <PageLayout>
+      <div ref={containerRef} id="system-reports-root">
         <header className="mb-6 flex items-start gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">System Reports & Analytics</h1>
@@ -267,7 +264,7 @@ export default function SystemReports() {
             </div>
           )}
         </section>
-      </main>
-    </div>
+      </div>
+    </PageLayout>
   );
 }

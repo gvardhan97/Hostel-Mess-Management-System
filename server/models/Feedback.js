@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { MEAL_TYPES } from '../constants/index.js';
 
 // Sub-schema for category-wise ratings
 const CategoryRatingSchema = new mongoose.Schema(
@@ -58,7 +59,7 @@ const FeedbackSchema = new mongoose.Schema(
     },
     mealType: {
       type: String,
-      enum: ['breakfast', 'lunch', 'eveningSnacks', 'dinner'],
+      enum: MEAL_TYPES,
       required: [true, 'Meal type is required'],
     },
     overallRating: {

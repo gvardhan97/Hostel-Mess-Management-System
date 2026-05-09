@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
+import { HOSTELS, ROLES } from '../constants/index.js';
 
 const UserSchema = new mongoose.Schema(
   {
@@ -26,7 +27,7 @@ const UserSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ['student', 'manager', 'admin'],
+      enum: ROLES,
       default: 'student',
     },
     registrationNumber: {
@@ -36,7 +37,7 @@ const UserSchema = new mongoose.Schema(
     },
     hostelId: {
       type: String,
-      enum: ['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3'],
+      enum: HOSTELS,
       required: function() {
         return this.role === 'student' || this.role === 'manager';
       },

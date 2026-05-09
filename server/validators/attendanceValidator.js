@@ -1,4 +1,5 @@
 import { body, query, param } from 'express-validator';
+import { MEAL_TYPES } from '../constants/index.js';
 
 // ── Mark attendance validation ───────────────────────────────────
 export const markAttendanceValidation = [
@@ -15,7 +16,7 @@ export const markAttendanceValidation = [
 
   body('meals.*.mealType')
     .optional()
-    .isIn(['breakfast', 'lunch', 'eveningSnacks', 'dinner'])
+    .isIn(MEAL_TYPES)
     .withMessage('Invalid meal type'),
 
   body('meals.*.isPresent')

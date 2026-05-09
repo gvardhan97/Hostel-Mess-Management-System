@@ -11,6 +11,8 @@ import billRoutes from './routes/billRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import reportRoutes from './routes/reportRoutes.js';
 import mealTokenRoutes from './routes/mealTokenRoutes.js';
+import paymentRoutes from './routes/paymentRoutes.js';
+import profileRoutes from './routes/profileRoutes.js';
 
 const app = express();
 
@@ -46,6 +48,8 @@ app.use('/api/bills', billRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/reports', reportRoutes);
 app.use('/api/meal-tokens', mealTokenRoutes);
+app.use('/api/payments', paymentRoutes);
+app.use('/api/profile',  profileRoutes);
 
 // ── Health check ─────────────────────────────────────────────────
 app.get('/', (req, res) => {

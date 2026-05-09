@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar2.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import { getMessMonthlyStats } from "../api/attendanceAPI.js";
 import {
   ResponsiveContainer,
@@ -151,7 +150,7 @@ function exportCSV(daily, monthLabel) {
 // MAIN COMPONENT
 // ════════════════════════════════════════════════════════════════
 export default function AttendanceInsights() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -245,11 +244,7 @@ export default function AttendanceInsights() {
   // RENDER
   // ════════════════════════════════════════════════════════════════
   return (
-    <div className="min-h-screen font-sans bg-neutral-50">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
+    <PageLayout>
         {/* ── Header ──────────────────────────────────────────── */}
         <header className="mb-8">
           <h1 className="text-3xl font-bold tracking-tight text-neutral-900">
@@ -641,7 +636,6 @@ export default function AttendanceInsights() {
             <p className="text-lg">Select a month to view attendance analytics</p>
           </div>
         )}
-      </main>
-    </div>
+    </PageLayout>
   );
 }

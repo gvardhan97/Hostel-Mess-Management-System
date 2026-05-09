@@ -1,22 +1,7 @@
 import Bill from '../models/Bill.js';
 import User from '../models/User.js';
 import AppError from '../utils/AppError.js';
-
-/**
- * Billing Service
- *
- * Contains all business logic for billing operations.
- */
-
-// Default meal rates (can be configured via env or DB in future)
-const DEFAULT_MEAL_RATES = {
-  breakfast: 30,
-  lunch: 50,
-  eveningSnacks: 20,
-  dinner: 50,
-};
-
-const DEFAULT_FIXED_CHARGES = 0;
+import { DEFAULT_MEAL_RATES, DEFAULT_FIXED_CHARGES } from '../constants/index.js';
 
 /**
  * Round bill total to nearest rupee and save if changed.
@@ -80,7 +65,7 @@ export const getStudentsCount = async () => {
 /**
  * Mark bills as paid by a student.
  */
-export const markBillsAsPaid = async (userId, billIds) => {
+export const markBillsAsPaid = async (userId, billIds, transactionId = '') => {
   const bills = await Bill.find({
     _id: { $in: billIds },
     studentId: userId,
@@ -92,6 +77,8 @@ export const markBillsAsPaid = async (userId, billIds) => {
     throw new AppError('No valid bills found for this user', 404);
   }
 
+  const txnId = transactionId?.trim() || `self-${Date.now()}`;
+
   for (const bill of bills) {
     bill.amountPaid = bill.totalAmount;
     bill.amountDue = 0;
@@ -100,9 +87,9 @@ export const markBillsAsPaid = async (userId, billIds) => {
     bill.paymentHistory.push({
       amount: bill.totalAmount,
       paymentMethod: 'upi',
-      transactionId: `manual-${Date.now()}`,
+      transactionId: txnId,
       paymentStatus: 'success',
-      remarks: 'Student marked as paid via UPI self-confirmation',
+      remarks: `Student self-confirmation via UPI (UTR: ${txnId})`,
       receivedBy: userId,
     });
     await bill.save();

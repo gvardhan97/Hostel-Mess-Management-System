@@ -42,13 +42,6 @@ const MealSchema = new mongoose.Schema(
         default: '12:30 PM - 02:30 PM',
       },
     },
-    eveningSnacks: {
-      items: [MealItemSchema],
-      timings: {
-        type: String,
-        default: '04:30 PM - 05:30 PM',
-      },
-    },
     dinner: {
       items: [MealItemSchema],
       timings: {

@@ -13,8 +13,8 @@ export const getMyBills = async (params = {}) => {
   const url = `${API}/my-bills${qs ? `?${qs}` : ""}`;
   return axios.get(url, authHeaders());
 };
-export const markBillsAsPaid = async (billIds) => {
-  return axios.put(`${API}/mark-paid`, { billIds }, authHeaders());
+export const markBillsAsPaid = async (billIds, transactionId = "") => {
+  return axios.put(`${API}/mark-paid`, { billIds, transactionId }, authHeaders());
 };
 // Get total count of students in database
 
@@ -64,4 +64,18 @@ export const getBillingStats = async (hostelId) => {
   
   return axios.get(`${API}/summary/${hostelId}/${month}/${year}`, authHeaders());
 
+};
+
+// ── Razorpay Payment ─────────────────────────────────────────────
+
+const PAYMENTS_API = `${API_BASE_URL}/api/payments`;
+
+// Create a Razorpay order for selected bill IDs
+export const createPaymentOrder = async (billIds) => {
+  return axios.post(`${PAYMENTS_API}/create-order`, { billIds }, authHeaders());
+};
+
+// Verify Razorpay payment after checkout completes
+export const verifyPayment = async (data) => {
+  return axios.post(`${PAYMENTS_API}/verify`, data, authHeaders());
 };

@@ -1,5 +1,6 @@
 import { body, validationResult } from 'express-validator';
 import AppError from '../utils/AppError.js';
+import { HOSTELS, ROLES } from '../constants/index.js';
 
 // ── Reusable validation runner ───────────────────────────────────
 /**
@@ -39,8 +40,8 @@ export const registerValidation = [
 
   body('role')
     .optional()
-    .isIn(['student', 'manager', 'admin'])
-    .withMessage('Invalid role. Must be student, manager, or admin'),
+    .isIn(ROLES)
+    .withMessage(`Invalid role. Must be one of: ${ROLES.join(', ')}`),
 
   body('contactNumber')
     .optional()
@@ -51,13 +52,33 @@ export const registerValidation = [
     .if(body('role').isIn(['student', 'manager']))
     .notEmpty()
     .withMessage('Hostel ID is required for students and managers')
-    .isIn(['BH-1', 'BH-2', 'BH-3', 'BH-4', 'BH-5', 'GH-1', 'GH-2', 'GH-3'])
-    .withMessage('Invalid hostel. Must be one of: BH-1, BH-2, BH-3, BH-4, BH-5, GH-1, GH-2, GH-3'),
+    .isIn(HOSTELS)
+    .withMessage(`Invalid hostel. Must be one of: ${HOSTELS.join(', ')}`),
 ];
 
 // ── Login validation rules ───────────────────────────────────────
 export const loginValidation = [
+  // Accept 'identifier' (new) or 'email' (legacy) — either an email or a roll number
+  body('identifier')
+    .if(body('email').not().exists())   // only check identifier when email is absent
+    .notEmpty()
+    .withMessage('Email or roll number is required')
+    .custom((value) => {
+      const isEmail = value.includes('@');
+      if (isEmail) {
+        // Validate as email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(value)) throw new Error('Please provide a valid email');
+      } else {
+        // Validate as roll number (alphanumeric with optional hyphens/underscores)
+        const rollRegex = /^[a-zA-Z0-9_-]+$/;
+        if (!rollRegex.test(value)) throw new Error('Please provide a valid roll number or email');
+      }
+      return true;
+    }),
+
   body('email')
+    .optional()
     .isEmail()
     .normalizeEmail()
     .withMessage('Please provide a valid email'),

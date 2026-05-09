@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Navbar from "../components/Navbar.jsx";
-import Sidebar from "../components/Sidebar2.jsx";
+import PageLayout from "../components/PageLayout.jsx";
 import Card from "../components/Card.jsx";
 import StatBadge from "../components/StatBadge.jsx";
 import PrimaryButton from "../components/PrimaryButton.jsx";
@@ -18,7 +17,7 @@ import {
 } from "lucide-react";
 
 export default function MessManagerDashboard() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const navigate = useNavigate();
 
     const [stats, setStats] = useState({
@@ -90,18 +89,10 @@ export default function MessManagerDashboard() {
 
 
   return (
-    <div className="min-h-screen font-sans">
-      <Navbar onOpenSidebar={() => setSidebarOpen(true)} />
-      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-      <main className="container-narrow py-10">
-        {/* Header */}
-        <header className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Mess Manager Dashboard</h1>
-          <p className="text-neutral-600 mt-1">
-            Manage weekly menus, view analytics, and monitor student engagement.
-          </p>
-        </header>
+    <PageLayout
+      title="Mess Manager Dashboard"
+      subtitle="Manage weekly menus, view analytics, and monitor student engagement."
+    >
 
         {/* Stats */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
@@ -168,7 +159,6 @@ export default function MessManagerDashboard() {
             actions={<PrimaryButton onClick={() => navigate("/generate-qr")}>Generate QR</PrimaryButton>}
           />
         </section>
-      </main>
-    </div>
+    </PageLayout>
   );
 }

@@ -21,8 +21,9 @@ export const register = asyncHandler(async (req, res) => {
 // @route   POST /api/auth/login
 // @access  Public
 export const login = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
-  const result = await authService.loginUser(email, password);
+  const { email, identifier, password } = req.body;
+  // Accept either 'identifier' (new) or 'email' (legacy client field)
+  const result = await authService.loginUser(identifier || email, password);
   sendSuccess(res, result, 'Login successful');
 });
 

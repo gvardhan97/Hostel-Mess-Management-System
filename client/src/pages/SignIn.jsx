@@ -9,7 +9,7 @@ export default function SignIn() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
-    email: "",
+    identifier: "",
     password: "",
     remember: true,
   });
@@ -29,7 +29,7 @@ export default function SignIn() {
       const response = await axios.post(
         `${API_BASE_URL}/api/auth/login`,
         {
-          email: form.email,
+          identifier: form.identifier,
           password: form.password,
         },
         { withCredentials: true }
@@ -79,20 +79,17 @@ export default function SignIn() {
 
           <form onSubmit={handleSubmit} className="mt-8 space-y-4">
             <div>
-              <label
-                htmlFor="email"
-                className="text-sm text-neutral-700"
-              >
-                Email
+              <label htmlFor="identifier" className="text-sm text-neutral-700">
+                Email or Roll Number
               </label>
               <input
-                id="email"
-                name="email"
-                type="email"
+                id="identifier"
+                name="identifier"
+                type="text"
                 required
-                value={form.email}
+                value={form.identifier}
                 onChange={handleChange}
-                placeholder="you@iiita.ac.in"
+                placeholder="you@iiita.ac.in or IEC2022047"
                 className="mt-1 w-full rounded-xl border border-neutral-300 p-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
               />
             </div>
