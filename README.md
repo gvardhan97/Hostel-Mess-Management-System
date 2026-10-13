@@ -21,6 +21,8 @@ A full-stack web application for managing the hostel mess at **IIIT Allahabad**.
 - [Screenshots](#screenshots)
 
 ---
+## Architecture
+<img width="6813" height="8116" alt="diagram (1)" src="https://github.com/user-attachments/assets/e5f30942-581b-48e2-9447-997a0a7dbe59" />
 
 ---
 
