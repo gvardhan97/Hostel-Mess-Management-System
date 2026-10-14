@@ -4,7 +4,7 @@ A full-stack web application for managing the hostel mess at **IIIT Allahabad**.
 
 ---
 
-## 📋 Table of Contents
+## 📋 Table of Contents 
 
 - [Overview](#overview)
 - [Features](#features)
